@@ -6,3 +6,223 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
+enum Role {
+  ADMIN
+  USER
+}
+
+enum MemberType {
+  TEAM
+  MENTOR
+  ADVISOR
+}
+
+enum LabLevel {
+  PRIMARY
+  ADVANCED
+}
+
+enum GalleryType {
+  IMAGE
+  VIDEO
+  TESTIMONIAL
+}
+
+enum EventType {
+  EVENT
+  WORKSHOP
+  OLYMPIAD
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model User {
+  id             String    @id @default(uuid())
+  name           String
+  email          String    @unique
+  passwordHash   String
+  role           Role      @default(USER)
+  failedAttempts Int       @default(0)
+  lockUntil      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+}
+
+model TeamMember {
+  id            String     @id @default(uuid())
+  name          String
+  qualification String
+  role          MemberType
+  image         String
+  sortOrder     Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([sortOrder])
+}
+
+model MathLab {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  price       Decimal        @db.Decimal(10, 2)
+  level       LabLevel
+  videoUrl    String
+  isDeleted   Boolean        @default(false)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  images      LabImage[]
+  equipment   LabEquipment[]
+  orderItems  OrderItem[]
+
+  @@index([isDeleted])
+}
+
+model LabImage {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String
+  labId     String
+  lab       MathLab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([labId])
+}
+
+model LabEquipment {
+  id        String   @id @default(uuid())
+  name      String
+  labId     String
+  lab       MathLab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([labId])
+}
+
+model MathKit {
+  id          String      @id @default(uuid())
+  title       String
+  classNumber Int
+  description String
+  price       Decimal     @db.Decimal(10, 2)
+  videoUrl    String
+  isActive    Boolean     @default(true)
+  isDeleted   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  images      KitImage[]
+  orderItems  OrderItem[]
+
+  @@index([classNumber])
+  @@index([isActive])
+  @@index([isDeleted])
+}
+
+model KitImage {
+  id        String   @id @default(uuid())
+  url       String
+  publicId  String
+  kitId     String
+  kit       MathKit  @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([kitId])
+}
+
+model Gallery {
+  id          String      @id @default(uuid())
+  title       String
+  type        GalleryType
+  url         String
+  publicId    String
+  textContent String?
+  isDeleted   Boolean     @default(false)
+  createdAt   DateTime    @default(now())
+
+  @@index([type])
+  @@index([isDeleted])
+}
+
+model Enquiry {
+  id         String   @id @default(uuid())
+  name       String
+  email      String
+  phone      String
+  schoolName String
+  city       String
+  message    String
+  createdAt  DateTime @default(now())
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Event {
+  id          String    @id @default(uuid())
+  title       String
+  description String
+  type        EventType
+  date        DateTime
+  image       String
+  price       Decimal   @default(0) @db.Decimal(10, 2)
+  schedule    String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([type])
+  @@index([date])
+}
+
+model Order {
+  id              String      @id @default(uuid())
+  buyerName       String
+  buyerEmail      String
+  buyerPhone      String
+  schoolName      String
+  city            String
+  state           String
+  totalAmount     Decimal     @db.Decimal(10, 2)
+  status          OrderStatus @default(PENDING)
+  idempotencyKey  String      @unique
+  razorpayOrderId String      @unique
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  items           OrderItem[]
+  payments        Payment[]
+
+  @@index([buyerEmail])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id       String   @id @default(uuid())
+  orderId  String
+  order    Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  kitId    String?
+  kit      MathKit? @relation(fields: [kitId], references: [id])
+  labId    String?
+  lab      MathLab? @relation(fields: [labId], references: [id])
+  quantity Int
+  price    Decimal  @db.Decimal(10, 2)
+
+  @@index([orderId])
+  @@index([kitId])
+  @@index([labId])
+}
+
+model Payment {
+  id                String   @id @default(uuid())
+  orderId           String
+  order             Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  razorpayPaymentId String   @unique
+  razorpaySignature String
+  createdAt         DateTime @default(now())
+
+  @@index([orderId])
+}
