@@ -1,0 +1,30 @@
+import logger from '../utils/logger.js';
+
+const errorHandler = (err, req, res, next) => {
+  logger.error(
+    {
+      err: {
+        message: err.message,
+        stack: err.stack,
+        code: err.code,
+      },
+      request: {
+        method: req.method,
+        url: req.url,
+        ip: req.ip,
+      },
+    },
+    'Uncaught server error'
+  );
+
+  const status = err.status || err.statusCode || 500;
+  const message = status === 500 ? 'Internal Server Error' : err.message;
+
+  res.status(status).json({
+    success: false,
+    message,
+  });
+};
+
+export default errorHandler;
+
