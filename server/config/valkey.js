@@ -21,9 +21,24 @@ const valkey = new Redis(valkeyUrl, {
   },
 });
 
+valkey.on('connect', () => {
+  logger.info('Valkey client connected to server');
+});
+
+valkey.on('ready', () => {
+  logger.info('Valkey client is ready to accept commands');
+});
+
 valkey.on('error', (err) => {
   logger.error({ err }, 'Valkey connection error');
 });
 
-export default valkey;
+valkey.on('close', () => {
+  logger.warn('Valkey connection closed');
+});
 
+valkey.on('reconnecting', (delay) => {
+  logger.info(`Valkey reconnecting in ${delay}ms`);
+});
+
+export default valkey;
