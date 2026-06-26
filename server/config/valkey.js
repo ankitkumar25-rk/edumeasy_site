@@ -1,3 +1,4 @@
+import './env.js';
 import Redis from 'iovalkey';
 import logger from '../utils/logger.js';
 
