@@ -30,3 +30,26 @@ export const authenticate = async (req, res, next) => {
     });
   }
 };
+
+export const optionalAuthenticate = async (req, res, next) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split(' ')[1];
+
+  try {
+    const payload = await verifyAccessToken(token);
+    req.user = {
+      id: payload.id,
+      email: payload.email,
+      role: payload.role,
+    };
+  } catch (err) {
+    logger.warn({ err }, 'Optional authentication failed: invalid token');
+  }
+
+  next();
+};

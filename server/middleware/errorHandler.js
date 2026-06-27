@@ -20,11 +20,16 @@ const errorHandler = (err, req, res, next) => {
   const status = err.status || err.statusCode || 500;
   const message = status === 500 ? 'Internal Server Error' : err.message;
 
-  res.status(status).json({
+  const responsePayload = {
     success: false,
     message,
-  });
+  };
+
+  if (process.env.NODE_ENV === 'development') {
+    responsePayload.stack = err.stack;
+  }
+
+  res.status(status).json(responsePayload);
 };
 
 export default errorHandler;
-
