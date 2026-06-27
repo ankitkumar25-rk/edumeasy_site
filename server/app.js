@@ -5,6 +5,8 @@ import cors from 'cors';
 import errorHandler from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 
+import { generalLimiter } from './middleware/rateLimiters.js';
+
 const app = express();
 
 app.use(
@@ -37,6 +39,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use('/api', generalLimiter);
 
 app.use('/api/webhook/razorpay', express.raw({ type: 'application/json' }));
 
