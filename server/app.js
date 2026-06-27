@@ -2,6 +2,7 @@ import './config/env.js';
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import cookieParser from 'cookie-parser';
 import errorHandler from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 
@@ -43,6 +44,8 @@ app.use(
     credentials: true,
   })
 );
+
+app.use(cookieParser());
 
 app.use('/api', generalLimiter);
 app.use('/api/auth', authRoutes);
