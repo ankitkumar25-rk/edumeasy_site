@@ -12,6 +12,10 @@ import enquiryRoutes from './routes/enquiries.js';
 import orderRoutes from './routes/orders.js';
 import uploadRoutes from './routes/uploads.js';
 import galleryRoutes from './routes/galleryRoutes.js';
+import teamRoutes from './routes/team.js';
+import mathLabRoutes from './routes/mathLabRoutes.js';
+import mathKitRoutes from './routes/mathKitRoutes.js';
+import eventRoutes from './routes/eventRoutes.js';
 
 const app = express();
 
@@ -54,6 +58,10 @@ app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/gallery', galleryRoutes);
+app.use('/api/team', teamRoutes);
+app.use('/api/mathlabs', mathLabRoutes);
+app.use('/api/mathkits', mathKitRoutes);
+app.use('/api/events', eventRoutes);
 
 app.use('/api/webhook/razorpay', express.raw({ type: 'application/json' }));
 
