@@ -1,12 +1,11 @@
 import express from 'express';
 import { orderLimiter } from '../middleware/rateLimiters.js';
-import logger from '../utils/logger.js';
+import { validate } from '../validators/validate.js';
+import { checkoutSchema } from '../validators/order.js';
+import { createOrder } from '../controllers/order.js';
 
 const router = express.Router();
 
-router.post('/', orderLimiter, (req, res) => {
-  logger.info('Mock order checkout request received');
-  res.status(201).json({ success: true, message: 'Mock checkout successful' });
-});
+router.post('/', orderLimiter, validate(checkoutSchema), createOrder);
 
 export default router;
