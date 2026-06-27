@@ -13,6 +13,7 @@ const createLimiter = (windowMs, max, message) => {
     max,
     standardHeaders: true,
     legacyHeaders: false,
+    validate: false,
     message: {
       success: false,
       message,
