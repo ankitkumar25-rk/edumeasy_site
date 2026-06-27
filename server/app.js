@@ -6,6 +6,10 @@ import errorHandler from './middleware/errorHandler.js';
 import logger from './utils/logger.js';
 
 import { generalLimiter } from './middleware/rateLimiters.js';
+import authRoutes from './routes/auth.js';
+import enquiryRoutes from './routes/enquiries.js';
+import orderRoutes from './routes/orders.js';
+import uploadRoutes from './routes/uploads.js';
 
 const app = express();
 
@@ -41,6 +45,10 @@ app.use(
 );
 
 app.use('/api', generalLimiter);
+app.use('/api/auth', authRoutes);
+app.use('/api/enquiries', enquiryRoutes);
+app.use('/api/orders', orderRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 app.use('/api/webhook/razorpay', express.raw({ type: 'application/json' }));
 
