@@ -1,8 +1,8 @@
 import '../config/env.js';
 import bcrypt from 'bcrypt';
 import prisma from '../config/db.js';
-import { issueAccessToken, issueRefreshToken } from '../utils/paseto.js';
-import { storeRefreshToken } from '../utils/tokenStore.js';
+import { issueAccessToken, issueRefreshToken, verifyRefreshToken } from '../utils/paseto.js';
+import { storeRefreshToken, validateRefreshToken, deleteRefreshToken, rotateRefreshToken } from '../utils/tokenStore.js';
 import logger from '../utils/logger.js';
 
 export const register = async (req, res, next) => {
@@ -139,6 +139,90 @@ export const login = async (req, res, next) => {
         email: user.email,
         role: user.role,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const refresh = async (req, res, next) => {
+  try {
+    const token = req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (!token) {
+      return res.status(401).json({
+        success: false,
+        message: 'Refresh token is missing',
+      });
+    }
+
+    let payload;
+    try {
+      payload = await verifyRefreshToken(token);
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid or expired refresh token',
+      });
+    }
+
+    const userId = await validateRefreshToken(token);
+    if (!userId || userId !== payload.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Session expired or revoked',
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        success: false,
+        message: 'User not found',
+      });
+    }
+
+    const newAccessToken = await issueAccessToken(user);
+    const newRefreshToken = await issueRefreshToken(user);
+
+    await rotateRefreshToken(token, newRefreshToken, user.id);
+
+    res.cookie('refreshToken', newRefreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const logout = async (req, res, next) => {
+  try {
+    const token = req.cookies?.refreshToken || req.body?.refreshToken;
+
+    if (token) {
+      await deleteRefreshToken(token);
+    }
+
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Logged out successfully',
     });
   } catch (error) {
     next(error);
