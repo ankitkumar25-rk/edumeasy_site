@@ -1,27 +1,73 @@
-import { useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
+import { AuthProvider } from './context/AuthContext.jsx';
+import Home from './pages/Home.jsx';
+import Team from './pages/Team.jsx';
+import Gallery from './pages/Gallery.jsx';
+import MathLabs from './pages/MathLabs.jsx';
+import MathKits from './pages/MathKits.jsx';
+import MathKitDetail from './pages/MathKitDetail.jsx';
+import Events from './pages/Events.jsx';
+import Contact from './pages/Contact.jsx';
+import Login from './pages/Login.jsx';
 
-function App() {
-  const [count, setCount] = useState(0);
-
+const Navigation = () => {
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-purple-500 selection:text-white">
-      <div className="max-w-2xl text-center space-y-8">
-        <h1 className="text-5xl font-extrabold tracking-tight bg-gradient-to-r from-purple-400 to-indigo-400 bg-clip-text text-transparent">
-          EduMEasy Client
-        </h1>
-        <p className="text-lg text-slate-400">
-          React 19, Vite, Tailwind CSS v4, and React Router v6 setup is complete.
-        </p>
-        <div className="flex justify-center">
-          <button
-            onClick={() => setCount((c) => c + 1)}
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 transition duration-300 rounded-lg font-semibold shadow-lg shadow-purple-500/20 active:scale-95 cursor-pointer"
-          >
-            Count is {count}
-          </button>
+    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-gray-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16">
+          <div className="flex-shrink-0 flex items-center">
+            <Link to="/" className="text-xl font-extrabold text-indigo-600">EduMEasy</Link>
+          </div>
+          <div className="ml-10 flex items-baseline space-x-4">
+            <Link to="/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Home</Link>
+            <Link to="/team" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Team</Link>
+            <Link to="/gallery" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Gallery</Link>
+            <Link to="/mathlabs" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Math Labs</Link>
+            <Link to="/mathkits" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Math Kits</Link>
+            <Link to="/events" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Events</Link>
+            <Link to="/contact" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Contact</Link>
+            <Link to="/login" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Login</Link>
+          </div>
         </div>
       </div>
+    </nav>
+  );
+};
+
+const AnimatedAppContent = () => {
+  const location = useLocation();
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <Navigation />
+      <main className="flex-grow">
+        <AnimatePresence mode="wait">
+          <Routes location={location} key={location.pathname}>
+            <Route path="/" element={<Home />} />
+            <Route path="/team" element={<Team />} />
+            <Route path="/gallery" element={<Gallery />} />
+            <Route path="/mathlabs" element={<MathLabs />} />
+            <Route path="/mathkits" element={<MathKits />} />
+            <Route path="/mathkits/:id" element={<MathKitDetail />} />
+            <Route path="/events" element={<Events />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/login" element={<Login />} />
+          </Routes>
+        </AnimatePresence>
+      </main>
     </div>
+  );
+};
+
+function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <AnimatedAppContent />
+      </Router>
+    </AuthProvider>
   );
 }
 
