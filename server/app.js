@@ -16,6 +16,7 @@ import teamRoutes from './routes/team.js';
 import mathLabRoutes from './routes/mathLabRoutes.js';
 import mathKitRoutes from './routes/mathKitRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
+import webhookRoutes from './routes/webhook.js';
 
 const app = express();
 
@@ -64,6 +65,7 @@ app.use('/api/mathkits', mathKitRoutes);
 app.use('/api/events', eventRoutes);
 
 app.use('/api/webhook/razorpay', express.raw({ type: 'application/json' }));
+app.use('/api/webhook/razorpay', webhookRoutes);
 
 app.use(express.json({ limit: '10kb' }));
 

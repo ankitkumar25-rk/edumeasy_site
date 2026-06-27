@@ -39,11 +39,24 @@ export const createOrder = async (req, res, next) => {
     });
 
     if (existingOrder) {
-      logger.info({ idempotencyKey }, 'Returning existing order via idempotent request');
+      if (existingOrder.status === 'PAID') {
+        logger.info({ idempotencyKey }, 'Returning existing paid order');
+        return res.status(200).json({
+          success: true,
+          message: 'Order already paid',
+          data: existingOrder,
+        });
+      }
+      logger.info({ idempotencyKey }, 'Returning existing pending order details');
       return res.status(200).json({
         success: true,
-        message: 'Order already exists (idempotent)',
-        data: existingOrder,
+        message: 'Order already exists, pending payment',
+        data: {
+          razorpayOrderId: existingOrder.razorpayOrderId,
+          amount: Math.round(Number(existingOrder.totalAmount) * 100),
+          currency: 'INR',
+          key: process.env.RAZORPAY_KEY_ID,
+        },
       });
     }
 
@@ -95,33 +108,135 @@ export const createOrder = async (req, res, next) => {
     }
 
     // 5. Save order in DB
-    const order = await prisma.order.create({
-      data: {
-        buyerName,
-        buyerEmail,
-        buyerPhone,
-        schoolName,
-        city,
-        state,
-        totalAmount: computedTotal,
-        idempotencyKey,
-        razorpayOrderId,
-        items: {
-          create: orderItemsToCreate,
+    const order = await prisma.$transaction(async (tx) => {
+      return tx.order.create({
+        data: {
+          buyerName,
+          buyerEmail,
+          buyerPhone,
+          schoolName,
+          city,
+          state,
+          totalAmount: computedTotal,
+          idempotencyKey,
+          razorpayOrderId,
+          items: {
+            create: orderItemsToCreate,
+          },
         },
+        include: {
+          items: true,
+        },
+      });
+    });
+
+    res.status(201).json({
+      success: true,
+      data: {
+        razorpayOrderId: order.razorpayOrderId,
+        amount: Math.round(computedTotal * 100),
+        currency: 'INR',
+        key: process.env.RAZORPAY_KEY_ID,
       },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyOrderPayment = async (req, res, next) => {
+  try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+
+    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing required Razorpay payment verification fields',
+      });
+    }
+
+    const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+    hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+    const generatedSignature = hmac.digest('hex');
+
+    const genBuf = Buffer.from(generatedSignature, 'utf-8');
+    const sigBuf = Buffer.from(razorpay_signature, 'utf-8');
+
+    if (genBuf.length !== sigBuf.length || !crypto.timingSafeEqual(genBuf, sigBuf)) {
+      logger.warn({ razorpay_order_id }, 'Invalid payment signature verification attempt');
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid payment signature',
+      });
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { razorpayOrderId: razorpay_order_id },
+    });
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.order.update({
+        where: { id: order.id },
+        data: { status: 'PAID' },
+      });
+
+      await tx.payment.create({
+        data: {
+          orderId: order.id,
+          razorpayPaymentId: razorpay_payment_id,
+          razorpaySignature: razorpay_signature,
+        },
+      });
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Payment verified and order finalized successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getOrderById = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+
+    const order = await prisma.order.findUnique({
+      where: { id },
       include: {
         items: {
           include: {
             kit: true,
           },
         },
+        payments: true,
       },
     });
 
-    res.status(201).json({
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        message: 'Order not found',
+      });
+    }
+
+    if (order.buyerEmail !== req.user.email) {
+      return res.status(403).json({
+        success: false,
+        message: 'Access denied: You are not authorized to view this order',
+      });
+    }
+
+    res.status(200).json({
       success: true,
-      message: 'Order created successfully',
       data: order,
     });
   } catch (error) {
