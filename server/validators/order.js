@@ -11,9 +11,8 @@ export const checkoutSchema = z.object({
     buyerName: z.string().min(2, 'Name must be at least 2 characters long'),
     buyerEmail: z.string().email('Invalid email address'),
     buyerPhone: z.string().min(10, 'Phone number must be at least 10 characters long'),
-    address: z.string().optional(),
-    schoolName: z.string().optional(),
-    city: z.string().optional(),
-    state: z.string().optional(),
+    schoolName: z.string().min(2, 'School name must be at least 2 characters long'),
+    city: z.string().min(2, 'City must be at least 2 characters long'),
+    state: z.string().min(2, 'State must be at least 2 characters long'),
   }),
 });
