@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.js';
 import enquiryRoutes from './routes/enquiries.js';
 import orderRoutes from './routes/orders.js';
 import uploadRoutes from './routes/uploads.js';
+import galleryRoutes from './routes/galleryRoutes.js';
 
 const app = express();
 
@@ -52,6 +53,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/enquiries', enquiryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/gallery', galleryRoutes);
 
 app.use('/api/webhook/razorpay', express.raw({ type: 'application/json' }));
 
