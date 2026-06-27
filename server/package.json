@@ -25,6 +25,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "paseto": "^3.1.4",
     "pino": "^9.2.0",
+    "pino-http": "^11.0.0",
     "rate-limit-redis": "^4.2.0",
     "razorpay": "^2.9.6",
     "resend": "^6.16.0",
