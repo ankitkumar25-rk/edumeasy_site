@@ -1,1 +1,54 @@
 @import "tailwindcss";
+
+@theme {
+  --color-primary: #0a2540;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #06152b;
+  --color-on-primary-container: #93c5fd;
+  --color-secondary: #ff6b00;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #ffefe5;
+  --color-on-secondary-container: #ff6b00;
+  --color-tertiary: #00b4d8;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #e0f2fe;
+  --color-on-tertiary-container: #0369a1;
+  --color-background: #f8fafc;
+  --color-on-background: #0f172a;
+  --color-surface: #ffffff;
+  --color-on-surface: #0f172a;
+  --color-surface-variant: #f1f5f9;
+  --color-on-surface-variant: #475569;
+  --color-outline: #64748b;
+  --color-outline-variant: #e2e8f0;
+  --color-error: #ef4444;
+  --color-on-error: #ffffff;
+
+  --font-display: "Hanken Grotesk", sans-serif;
+  --font-body: "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+.math-grid-bg {
+  background-image: linear-gradient(to right, #e2e8f0 1px, transparent 1px), linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+@keyframes shiny-sweep {
+  0% {
+    background-position: 120% 50%;
+  }
+  100% {
+    background-position: -120% 50%;
+  }
+}
+
+.animate-shiny {
+  background-image: linear-gradient(120deg, rgba(255, 255, 255, 0) 30%, rgba(255, 255, 255, 0.8) 50%, rgba(255, 255, 255, 0) 70%);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: shiny-sweep 4s infinite linear;
+}

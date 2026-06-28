@@ -1,5 +1,6 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import axiosInstance from '../api/axios.js';
+import { API_ENDPOINTS } from '../api/endpoints.js';
 
 const AuthContext = createContext(null);
 
@@ -9,7 +10,7 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const interceptor = axiosInstance.interceptors.request.use(
+    const requestInterceptor = axiosInstance.interceptors.request.use(
       (config) => {
         if (accessToken) {
           config.headers.Authorization = `Bearer ${accessToken}`;
@@ -19,20 +20,54 @@ export const AuthProvider = ({ children }) => {
       (error) => Promise.reject(error)
     );
 
+    const responseInterceptor = axiosInstance.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+          if (originalRequest.url.includes(API_ENDPOINTS.AUTH.REFRESH)) {
+            setAccessToken(null);
+            setUser(null);
+            window.location.href = '/';
+            return Promise.reject(error);
+          }
+
+          originalRequest._retry = true;
+          try {
+            const refreshResponse = await axiosInstance.get(API_ENDPOINTS.AUTH.REFRESH);
+            if (refreshResponse.data && refreshResponse.data.accessToken) {
+              const newToken = refreshResponse.data.accessToken;
+              setAccessToken(newToken);
+              setUser(refreshResponse.data.user);
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return axiosInstance(originalRequest);
+            }
+          } catch (refreshError) {
+            setAccessToken(null);
+            setUser(null);
+            window.location.href = '/';
+            return Promise.reject(refreshError);
+          }
+        }
+        return Promise.reject(error);
+      }
+    );
+
     return () => {
-      axiosInstance.interceptors.request.eject(interceptor);
+      axiosInstance.interceptors.request.eject(requestInterceptor);
+      axiosInstance.interceptors.response.eject(responseInterceptor);
     };
   }, [accessToken]);
 
   const silentRefresh = async () => {
     try {
-      const response = await axiosInstance.get('/auth/refresh');
+      const response = await axiosInstance.get(API_ENDPOINTS.AUTH.REFRESH);
       if (response.data && response.data.accessToken) {
         setAccessToken(response.data.accessToken);
         setUser(response.data.user);
       }
     } catch (err) {
-      // Ignore silent refresh failures on initial load
+      // Swallow error during initial silent refresh attempt
     } finally {
       setLoading(false);
     }
@@ -43,7 +78,7 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (email, password) => {
-    const response = await axiosInstance.post('/auth/login', { email, password });
+    const response = await axiosInstance.post(API_ENDPOINTS.AUTH.LOGIN, { email, password });
     if (response.data && response.data.accessToken) {
       setAccessToken(response.data.accessToken);
       setUser(response.data.user);
@@ -53,9 +88,9 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      await axiosInstance.post('/auth/logout');
+      await axiosInstance.post(API_ENDPOINTS.AUTH.LOGOUT);
     } catch (err) {
-      // Log or swallow logout network issues
+      // Swallow logout network errors
     } finally {
       setAccessToken(null);
       setUser(null);

@@ -1,62 +1,54 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { AuthProvider } from './context/AuthContext.jsx';
+import Navbar from './components/Navbar.jsx';
+import Footer from './components/Footer.jsx';
 import Home from './pages/Home.jsx';
-import Team from './pages/Team.jsx';
-import Gallery from './pages/Gallery.jsx';
+import MathAI from './pages/MathAI.jsx';
+import About from './pages/About.jsx';
 import MathLabs from './pages/MathLabs.jsx';
+import Clients from './pages/Clients.jsx';
+import Post from './pages/Post.jsx';
+import Contact from './pages/Contact.jsx';
 import MathKits from './pages/MathKits.jsx';
 import MathKitDetail from './pages/MathKitDetail.jsx';
-import Events from './pages/Events.jsx';
-import Contact from './pages/Contact.jsx';
 import Login from './pages/Login.jsx';
-
-const Navigation = () => {
-  return (
-    <nav className="sticky top-0 z-50 backdrop-blur-md bg-white/70 border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <Link to="/" className="text-xl font-extrabold text-indigo-600">EduMEasy</Link>
-          </div>
-          <div className="ml-10 flex items-baseline space-x-4">
-            <Link to="/" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Home</Link>
-            <Link to="/team" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Team</Link>
-            <Link to="/gallery" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Gallery</Link>
-            <Link to="/mathlabs" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Math Labs</Link>
-            <Link to="/mathkits" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Math Kits</Link>
-            <Link to="/events" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Events</Link>
-            <Link to="/contact" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Contact</Link>
-            <Link to="/login" className="text-gray-700 hover:text-indigo-600 px-3 py-2 rounded-md text-sm font-medium">Login</Link>
-          </div>
-        </div>
-      </div>
-    </nav>
-  );
-};
+import Checkout from './pages/Checkout.jsx';
+import OrderSuccess from './pages/OrderSuccess.jsx';
+import Dither from './components/Dither.jsx';
+import Events from './pages/Events.jsx';
+import Gallery from './pages/Gallery.jsx';
 
 const AnimatedAppContent = () => {
   const location = useLocation();
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
-      <Navigation />
+    <div className="min-h-screen bg-gray-50 flex flex-col font-body relative overflow-hidden">
+      <Dither className="fixed inset-0 z-50 pointer-events-none opacity-40" />
+      <Navbar />
       <main className="flex-grow">
         <AnimatePresence mode="wait">
           <Routes location={location} key={location.pathname}>
             <Route path="/" element={<Home />} />
-            <Route path="/team" element={<Team />} />
-            <Route path="/gallery" element={<Gallery />} />
-            <Route path="/mathlabs" element={<MathLabs />} />
-            <Route path="/mathkits" element={<MathKits />} />
-            <Route path="/mathkits/:id" element={<MathKitDetail />} />
-            <Route path="/events" element={<Events />} />
+            <Route path="/mathai" element={<MathAI />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/equipment/primary" element={<MathLabs />} />
+            <Route path="/equipment/advanced" element={<MathLabs />} />
+            <Route path="/clients" element={<Clients />} />
+            <Route path="/post" element={<Post />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/store" element={<MathKits />} />
+            <Route path="/store/:id" element={<MathKitDetail />} />
+            <Route path="/happening" element={<Events />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/checkout" element={<Checkout />} />
+            <Route path="/order-success/:id" element={<OrderSuccess />} />
           </Routes>
         </AnimatePresence>
       </main>
+      <Footer />
     </div>
   );
 };
