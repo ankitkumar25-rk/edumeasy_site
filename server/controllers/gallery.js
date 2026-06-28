@@ -17,8 +17,8 @@ export const listGallery = async (req, res, next) => {
     const { category, limit = 10, page = 1 } = req.query;
 
     const where = {
-      deletedAt: null,
-      ...(category ? { category } : {}),
+      isDeleted: false,
+      ...(category ? { type: category } : {}),
     };
 
     const count = await prisma.gallery.count({ where });
@@ -52,14 +52,15 @@ export const createGalleryItem = async (req, res, next) => {
       });
     }
 
-    const { title, description, url, category } = req.body;
+    const { title, textContent, url, category } = req.body;
 
     const item = await prisma.gallery.create({
       data: {
         title,
-        description,
+        textContent: textContent || null,
         url,
-        category,
+        type: category,
+        publicId: getPublicId(url) || 'manual-upload',
       },
     });
 
@@ -87,7 +88,7 @@ export const deleteGalleryItem = async (req, res, next) => {
     const { id } = req.params;
 
     const item = await prisma.gallery.findFirst({
-      where: { id, deletedAt: null },
+      where: { id, isDeleted: false },
     });
 
     if (!item) {
@@ -97,8 +98,8 @@ export const deleteGalleryItem = async (req, res, next) => {
       });
     }
 
-    const publicId = getPublicId(item.url);
-    if (publicId) {
+    const publicId = item.publicId || getPublicId(item.url);
+    if (publicId && publicId !== 'manual-upload') {
       try {
         await cloudinary.uploader.destroy(publicId);
       } catch (err) {
@@ -109,7 +110,7 @@ export const deleteGalleryItem = async (req, res, next) => {
     await prisma.gallery.update({
       where: { id },
       data: {
-        deletedAt: new Date(),
+        isDeleted: true,
       },
     });
 
