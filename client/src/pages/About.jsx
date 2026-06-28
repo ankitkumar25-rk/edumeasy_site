@@ -9,7 +9,12 @@ import {
   PhoneCall,
   CheckCircle,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Trophy,
+  FileText,
+  TrendingUp,
+  School,
+  Play
 } from 'lucide-react';
 import axiosInstance from '../api/axios.js';
 import { API_ENDPOINTS } from '../api/endpoints.js';
@@ -106,12 +111,14 @@ const CounterCard = ({ value, label }) => {
 };
 
 const MemberAvatar = ({ name, photoUrl }) => {
+  const [imgError, setImgError] = useState(false);
   const isPlaceholder = !photoUrl || photoUrl.includes('cloudinary.com/demo') || photoUrl.includes('cld-sample') || photoUrl.includes('placeholder');
-  
-  if (isPlaceholder) {
-    const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+  const initials = name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+
+  if (isPlaceholder || imgError) {
     return (
-      <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center border border-primary/10 shadow-inner group-hover:scale-105 transition-all duration-300">
+      <div className="w-24 h-24 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/30 flex items-center justify-center border border-primary/10 shadow-inner group-hover:scale-105 transition-all duration-300 shrink-0">
         <span className="text-xl font-display font-extrabold text-primary">{initials}</span>
       </div>
     );
@@ -119,15 +126,10 @@ const MemberAvatar = ({ name, photoUrl }) => {
 
   return (
     <img
-      className="w-24 h-24 rounded-2xl object-cover border border-primary/10 shadow-sm group-hover:scale-105 transition-all duration-300"
+      className="w-24 h-24 rounded-2xl object-cover border border-primary/10 shadow-sm group-hover:scale-105 transition-all duration-300 shrink-0"
       src={photoUrl}
       alt={name}
-      onError={(e) => {
-        e.target.onerror = null;
-        // SVG representation fallback
-        e.target.style.display = 'none';
-        e.target.nextSibling.style.display = 'flex';
-      }}
+      onError={() => setImgError(true)}
     />
   );
 };
@@ -249,7 +251,7 @@ const About = () => {
   }, []);
 
   const displayMembers = members.length > 0 ? members : fallbackTeam;
-  
+
   // Filtering based on type/role to cover both DB schemas & fallbacks
   const teamMembers = displayMembers.filter((m) => (m.type || m.role || '').toUpperCase() === 'TEAM');
   const mentors = displayMembers.filter((m) => (m.type || m.role || '').toUpperCase() === 'MENTOR');
@@ -299,12 +301,48 @@ const About = () => {
   ];
 
   const milestones = [
-    { year: "Incubation", title: "Incubated at IIT Jodhpur", desc: "Formally registered with i-Start Rajasthan and incubated by IIT Jodhpur to develop hands-on academic systems." },
-    { year: "2021", title: "8th Rajasthan Science Congress Summit", desc: "Presented the prototype of mathematical equipments at IIS University, gaining early researcher endorsement." },
-    { year: "2022", title: "State Pilot MoU Signed", desc: "MoU signed between RScSE (Dept. of School Education, Rajasthan) and EduMEasy on 23rd August 2022 for pilot in 11 schools of Jodhpur." },
-    { year: "2023", title: "CM & Minister Presentations", desc: "Presented tactile math lab models to Hon. Shri Ashok Gehlot (CM of Rajasthan) and Dr. B.D. Kalla (Education Minister)." },
-    { year: "Scaling", title: "Kendriya Vidyalaya & NGO Installs", desc: "Established fully functional lab setups at Kendriya Vidyalaya IIT Jodhpur and Shantikunj Haridwar (inaugurated by Dr. Chinmay Pandya)." },
-    { year: "Impact", title: "Corporate & State Support", desc: "Collaborated with Indeed Foundation, JSW, Surya Urja, and Eklavya Foundation to implement labs across Phalodi, Jodhpur, and Maharashtra." }
+    { 
+      year: "Incubation", 
+      title: "Incubated at IIT Jodhpur", 
+      desc: "Formally registered with i-Start Rajasthan and incubated by IIT Jodhpur to develop hands-on academic systems.",
+      icon: Sparkles,
+      color: "text-amber-500 bg-amber-50"
+    },
+    { 
+      year: "2021", 
+      title: "8th Rajasthan Science Congress", 
+      desc: "Presented the prototype of mathematical equipments at IIS University, gaining early researcher endorsement.",
+      icon: Trophy,
+      color: "text-yellow-600 bg-yellow-50"
+    },
+    { 
+      year: "2022", 
+      title: "State Pilot MoU Signed", 
+      desc: "MoU signed between RScSE (Dept. of School Education, Rajasthan) and EduMEasy on 23rd August 2022 for pilot in 11 schools of Jodhpur.",
+      icon: FileText,
+      color: "text-blue-500 bg-blue-50"
+    },
+    { 
+      year: "2023", 
+      title: "CM & Minister Presentations", 
+      desc: "Presented tactile math lab models to Hon. Shri Ashok Gehlot (CM of Rajasthan) and Dr. B.D. Kalla (Education Minister).",
+      icon: Award,
+      color: "text-indigo-500 bg-indigo-50"
+    },
+    { 
+      year: "Scaling", 
+      title: "KV & NGO Installs", 
+      desc: "Established fully functional lab setups at Kendriya Vidyalaya IIT Jodhpur and Shantikunj Haridwar (inaugurated by Dr. Chinmay Pandya).",
+      icon: School,
+      color: "text-emerald-500 bg-emerald-50"
+    },
+    { 
+      year: "Impact", 
+      title: "Corporate & State Support", 
+      desc: "Collaborated with Indeed Foundation, JSW, Surya Urja, and Eklavya Foundation to implement labs across Phalodi, Jodhpur, and Maharashtra.",
+      icon: TrendingUp,
+      color: "text-purple-500 bg-purple-50"
+    }
   ];
 
   return (
@@ -312,9 +350,14 @@ const About = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-background text-slate-800 font-body relative overflow-x-hidden"
+      className="bg-[#f8fafc] bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] text-slate-800 font-body relative overflow-x-hidden min-h-screen"
     >
       <FontStyles />
+
+      {/* Background Gradient Blobs */}
+      <div className="absolute top-[15%] left-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+      <div className="absolute top-[45%] right-[-10%] w-[600px] h-[600px] bg-secondary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+      <div className="absolute top-[75%] left-[-10%] w-[500px] h-[500px] bg-primary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
 
       {/* Hero Section */}
       <section className="relative overflow-hidden w-full py-28 bg-primary-container text-white text-center">
@@ -324,7 +367,7 @@ const About = () => {
             background: 'linear-gradient(135deg, rgba(6, 21, 43, 0.95), rgba(10, 37, 64, 0.85), rgba(6, 21, 43, 0.90))',
           }}
         ></div>
-        
+
         {/* Math Grid background helper */}
         <div className="absolute inset-0 opacity-10 math-grid-bg"></div>
 
@@ -336,11 +379,11 @@ const About = () => {
             <span className="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
             WHO WE ARE
           </div>
-          
+
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-extrabold leading-tight text-white">
             About <span className="text-secondary">EduMEasy</span>
           </h1>
-          
+
           <p className="text-base sm:text-lg opacity-80 max-w-2xl mx-auto leading-relaxed text-slate-200">
             Making mathematics simple, intuitive, and practical for school students nationwide through visual proofs and tactile learning equipment.
           </p>
@@ -364,8 +407,8 @@ const About = () => {
             <p className="text-sm text-slate-600 leading-relaxed">
               EduMEasy Math Lab for Schools has a delightful workshop for every student who faces difficulty in Math. It adds surplus to the studies and will have a remarkable impact on the learning experience — helping to visualize every concept of mathematics and making learning easy.
             </p>
-            
-            <div className="quote-box bg-slate-50 border-l-4 border-secondary p-5 rounded-r-2xl italic text-xs text-slate-500 leading-relaxed space-y-2">
+
+            <div className="quote-box bg-slate-50 p-5 rounded-r-2xl italic text-xs text-slate-500 leading-relaxed space-y-2">
               <p>"— A picture is worth 1000 words, if one is aware of its scope."</p>
               <p>"— A picture is worth 1000 words, if one is able to use it flexibly."</p>
             </div>
@@ -381,8 +424,8 @@ const About = () => {
                 allowFullScreen
               ></iframe>
             </div>
-            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider text-center">
-              ▶ WATCH MATH LAB INTRODUCTION DEMO
+            <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider text-center flex items-center justify-center gap-1.5">
+              <Play className="w-3.5 h-3.5 text-secondary fill-secondary" /> WATCH MATH LAB INTRODUCTION DEMO
             </p>
           </div>
         </div>
@@ -418,7 +461,7 @@ const About = () => {
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-6 text-left">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-secondary/10 border border-secondary/15 text-[12px] font-bold tracking-wider text-secondary">
               <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
@@ -481,7 +524,7 @@ const About = () => {
       <section className="py-24 bg-primary-container text-white relative">
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_center,_#3b82f6_0%,_transparent_70%)]"></div>
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8 relative z-10">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-16">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[12px] font-bold tracking-wider text-white mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
@@ -548,11 +591,11 @@ const About = () => {
         </div>
       </section>
 
-      {/* Timeline Section */}
+      {/* Milestones Card Grid Section */}
       <section className="py-24 bg-background">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8 text-center mb-16">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-[12px] font-bold tracking-wider text-primary mb-4">
-            <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+            <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse"></span>
             JOURNEY MILESTONES
           </div>
           <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-primary">
@@ -560,32 +603,47 @@ const About = () => {
           </h2>
         </div>
 
-        <div className="max-w-4xl mx-auto px-6 relative border-l-2 border-primary/20 text-left space-y-12">
-          {milestones.map((m, idx) => (
-            <div key={idx} className="relative pl-8 group">
-              {/* Timeline marker */}
-              <div className="absolute -left-[9px] top-1.5 w-4 h-4 rounded-full bg-white border-2 border-primary group-hover:bg-secondary group-hover:border-secondary transition-all duration-300"></div>
-              
-              <div>
-                <span className="text-xs font-mono font-bold text-secondary uppercase tracking-widest bg-secondary/10 px-2.5 py-1 rounded-full">
-                  {m.year}
-                </span>
-                <h3 className="font-display font-extrabold text-lg text-primary mt-3 mb-1">
-                  {m.title}
-                </h3>
-                <p className="text-xs text-slate-500 leading-relaxed max-w-2xl">
-                  {m.desc}
-                </p>
-              </div>
-            </div>
-          ))}
+        <div className="max-w-[1200px] mx-auto px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {milestones.map((m, idx) => {
+            const Icon = m.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: idx * 0.1 }}
+                className="bg-white/80 backdrop-blur-md border border-slate-200/60 p-8 rounded-3xl shadow-sm hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 relative group overflow-hidden text-left flex flex-col justify-between"
+              >
+                {/* Background decorative gradient */}
+                <div className="absolute right-0 top-0 w-24 h-24 bg-gradient-to-br from-primary/5 to-transparent rounded-bl-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+
+                <div>
+                  <div className="flex justify-between items-start mb-6">
+                    <span className="text-3xl font-display font-black text-slate-200 group-hover:text-secondary/25 transition-colors duration-300">
+                      {m.year}
+                    </span>
+                    <div className={`p-3 rounded-2xl ${m.color} transition-all duration-300`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                  </div>
+                  <h3 className="font-display font-extrabold text-lg text-primary mb-3 group-hover:text-secondary transition-colors duration-300">
+                    {m.title}
+                  </h3>
+                  <p className="text-xs text-slate-500 leading-relaxed font-body">
+                    {m.desc}
+                  </p>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
       {/* Team / Mentors / Advisors Section */}
       <section className="py-24 bg-slate-50 border-t border-slate-100">
         <div className="max-w-[1200px] mx-auto px-6 lg:px-8">
-          
+
           <div className="text-center max-w-3xl mx-auto mb-20">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/5 border border-primary/10 text-[12px] font-bold tracking-wider text-primary mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
@@ -613,34 +671,48 @@ const About = () => {
                     <h3 className="text-2xl font-display font-extrabold text-primary">Core Innovators</h3>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {teamMembers.map((m) => (
-                      <div
-                        key={m.id}
-                        className="bg-white border border-slate-200/60 p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group text-left"
-                      >
-                        <div className="space-y-6">
-                          <div className="flex gap-4 items-center">
-                            <MemberAvatar name={m.name} photoUrl={m.photoUrl || m.image} />
-                            <div>
-                              <h4 className="font-display font-bold text-base text-primary group-hover:text-secondary transition-colors">
-                                {m.name}
-                              </h4>
-                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider mt-0.5">
-                                {m.role}
-                              </p>
-                              <p className="text-xs text-slate-500 font-medium mt-1 leading-snug">
-                                {m.qualification}
-                              </p>
+                    {teamMembers.map((m) => {
+                      const isLead = m.role.toUpperCase().includes('CEO') || m.role.toUpperCase().includes('COO') || m.role.toUpperCase().includes('CHIEF OPERATING OFFICER');
+                      return (
+                        <div
+                          key={m.id}
+                          className={`p-6 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group text-left border ${
+                            isLead
+                              ? 'bg-gradient-to-br from-white via-white to-secondary/5 border-secondary/20 hover:border-secondary/40 shadow-md'
+                              : 'bg-white border-slate-200/60'
+                          }`}
+                        >
+                          <div className="space-y-6 relative">
+                            {isLead && (
+                              <span className="absolute top-0 right-0 text-[9px] font-bold uppercase tracking-widest bg-secondary text-white px-2 py-0.5 rounded-md">
+                                Leadership
+                              </span>
+                            )}
+                            <div className="flex gap-4 items-center">
+                              <MemberAvatar name={m.name} photoUrl={m.photoUrl || m.image} />
+                              <div>
+                                <h4 className="font-display font-bold text-base text-primary group-hover:text-secondary transition-colors">
+                                  {m.name}
+                                </h4>
+                                <p className={`text-[10px] font-bold uppercase tracking-wider mt-0.5 ${
+                                  isLead ? 'text-secondary' : 'text-slate-400'
+                                }`}>
+                                  {m.role}
+                                </p>
+                                <p className="text-xs text-slate-500 font-medium mt-1 leading-snug">
+                                  {m.qualification}
+                                </p>
+                              </div>
                             </div>
+                            {m.bio && (
+                              <p className="text-xs text-slate-500 leading-relaxed font-body">
+                                {m.bio}
+                              </p>
+                            )}
                           </div>
-                          {m.bio && (
-                            <p className="text-xs text-slate-500 leading-relaxed font-body">
-                              {m.bio}
-                            </p>
-                          )}
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
@@ -656,8 +728,11 @@ const About = () => {
                     {mentors.map((m) => (
                       <div
                         key={m.id}
-                        className="bg-white border border-slate-200/60 p-8 rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group text-left"
+                        className="bg-gradient-to-br from-white via-white to-primary/5 border border-primary/20 hover:border-primary/40 p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 flex flex-col justify-between group text-left relative"
                       >
+                        <span className="absolute top-4 right-4 text-[9px] font-bold uppercase tracking-widest bg-primary text-white px-2.5 py-1 rounded-md">
+                          IIT Jodhpur Faculty
+                        </span>
                         <div className="space-y-6">
                           <div className="flex gap-5 items-center">
                             <MemberAvatar name={m.name} photoUrl={m.photoUrl || m.image} />
@@ -736,11 +811,11 @@ const About = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-secondary"></span>
             COLLABORATION & PARTNERSHIPS
           </div>
-          
+
           <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-primary">
             Partner With Us
           </h2>
-          
+
           <p className="text-sm text-slate-500 max-w-2xl mx-auto leading-relaxed">
             We look forward to working with esteemed institutions and supporting efforts in maximizing the field of education. We are confident we can meet the challenges ahead and stand ready to deliver effective, world-changing innovation in mathematics education.
           </p>

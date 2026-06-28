@@ -11,14 +11,7 @@ const Navbar = () => {
   const links = [
     { name: 'HOME', path: '/' },
     { name: 'ABOUT US', path: '/about' },
-    {
-      name: 'MATH LAB',
-      path: '#',
-      dropdown: [
-        { name: 'PRIMARY CLASSES', path: '/equipment/primary' },
-        { name: 'ADVANCED CLASSES', path: '/equipment/advanced' },
-      ],
-    },
+    { name: 'MATH LAB', path: '/math-lab' },
     { name: 'MATH KIT', path: '/store' },
     { name: 'HAPPENING', path: '/happening' },
     { name: 'GALLERY', path: '/gallery' },
@@ -31,7 +24,7 @@ const Navbar = () => {
   };
 
   const isDropdownActive = () => {
-    return location.pathname.includes('/equipment/');
+    return false;
   };
 
   return (
@@ -86,8 +79,8 @@ const Navbar = () => {
                       <motion.button
                         whileHover={{ scale: 1.03 }}
                         className={`px-3 py-2 rounded-lg font-display text-[13px] font-bold tracking-wider flex items-center gap-1.5 uppercase transition-all ${isDropdownActive()
-                            ? 'text-primary'
-                            : 'text-on-surface-variant hover:text-primary'
+                          ? 'text-primary'
+                          : 'text-on-surface-variant hover:text-primary'
                           }`}
                       >
                         {link.name} <ChevronDown className="w-4 h-4" />
@@ -108,8 +101,8 @@ const Navbar = () => {
                                 to={sub.path}
                                 onClick={() => setIsDropdownOpen(false)}
                                 className={`block px-4 py-2.5 font-display text-[12px] font-bold text-left transition-colors uppercase ${isActive(sub.path)
-                                    ? 'bg-primary/5 text-secondary'
-                                    : 'text-on-surface-variant hover:bg-primary/5 hover:text-primary'
+                                  ? 'bg-primary/5 text-secondary'
+                                  : 'text-on-surface-variant hover:bg-primary/5 hover:text-primary'
                                   }`}
                               >
                                 {sub.name}
@@ -127,8 +120,8 @@ const Navbar = () => {
                     <Link
                       to={link.path}
                       className={`relative px-3 py-2 rounded-lg font-display text-[13px] font-bold tracking-wider uppercase transition-all duration-200 ${isActive(link.path)
-                          ? 'text-primary'
-                          : 'text-on-surface-variant hover:text-primary'
+                        ? 'text-primary'
+                        : 'text-on-surface-variant hover:text-primary'
                         }`}
                     >
                       {link.name}
@@ -203,8 +196,8 @@ const Navbar = () => {
                         to={sub.path}
                         onClick={() => setIsOpen(false)}
                         className={`block pl-8 pr-4 py-2 rounded font-display text-xs font-bold uppercase transition-all ${isActive(sub.path)
-                            ? 'bg-slate-50 text-secondary'
-                            : 'text-on-surface-variant hover:bg-slate-50 hover:text-primary'
+                          ? 'bg-slate-50 text-secondary'
+                          : 'text-on-surface-variant hover:bg-slate-50 hover:text-primary'
                           }`}
                       >
                         {sub.name}
@@ -220,8 +213,8 @@ const Navbar = () => {
                   to={link.path}
                   onClick={() => setIsOpen(false)}
                   className={`block px-4 py-2.5 rounded font-display text-xs font-bold uppercase transition-all ${isActive(link.path)
-                      ? 'bg-slate-50 text-secondary'
-                      : 'text-on-surface-variant hover:bg-slate-50 hover:text-primary'
+                    ? 'bg-slate-50 text-secondary'
+                    : 'text-on-surface-variant hover:bg-slate-50 hover:text-primary'
                     }`}
                 >
                   {link.name}

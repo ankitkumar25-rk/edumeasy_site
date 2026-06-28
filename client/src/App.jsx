@@ -33,8 +33,7 @@ const AnimatedAppContent = () => {
             <Route path="/" element={<Home />} />
             <Route path="/mathai" element={<MathAI />} />
             <Route path="/about" element={<About />} />
-            <Route path="/equipment/primary" element={<MathLabs />} />
-            <Route path="/equipment/advanced" element={<MathLabs />} />
+            <Route path="/math-lab" element={<MathLabs />} />
             <Route path="/clients" element={<Clients />} />
             <Route path="/post" element={<Post />} />
             <Route path="/contact" element={<Contact />} />

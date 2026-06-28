@@ -639,9 +639,14 @@ const Home = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="bg-background text-slate-800 font-body relative overflow-x-hidden"
+      className="bg-[#f8fafc] bg-[radial-gradient(#e2e8f0_1px,transparent_1px)] [background-size:24px_24px] text-slate-800 font-body relative overflow-x-hidden min-h-screen"
     >
       <FontStyles />
+
+      {/* Background Gradient Blobs */}
+      <div className="absolute top-[10%] left-[-25%] w-[700px] h-[700px] bg-primary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+      <div className="absolute top-[40%] right-[-25%] w-[750px] h-[750px] bg-secondary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+      <div className="absolute top-[70%] left-[-25%] w-[700px] h-[700px] bg-primary/5 rounded-full blur-3xl pointer-events-none z-0"></div>
 
       {/* Floating Action Buttons - Placed on Right to Prevent Text & Stat Overlap */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
